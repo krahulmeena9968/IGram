@@ -6,6 +6,11 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import userRoute from "./routes/user.routes.js";
+import googleRoute from "./routes/google.routes.js";
+import passport from "passport";
+import session from "express-session";
+
+import "./config/google.passport.js";
 
 const app = express();
 const server = createServer(app);
@@ -15,12 +20,26 @@ const io = new Server(server, {
   },
 });
 
+// Middleware configuration
+app.use(
+  session({
+    secret: "IGramSecret", // change to a secure secret in production
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 1 day
+  })
+);
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(passport.initialize());
+app.use(passport.session());
 const PORT = process.env.PORT || 3000;
 const uri = process.env.MONGO_URL;
 
+// login and signup
+app.use("/", googleRoute);
 app.use("/api/v1/users", userRoute);
 
 mongoose
