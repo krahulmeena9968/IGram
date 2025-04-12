@@ -3,9 +3,10 @@ import httpStatus from "http-status";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import wrapAsync from "../utils/wrapAsync.utils.js";
+import jwt from "jsonwebtoken";
 
 class userController {
-  login = wrapAsync(async (req, res) => {
+  login = wrapAsync(async (req, res, next) => {
     let { identifier, password, username } = req.body;
 
     if (!identifier) {
@@ -30,7 +31,12 @@ class userController {
 
     let isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (isPasswordCorrect) {
-      let token = crypto.randomBytes(20).toString("hex");
+      // let token = crypto.randomBytes(20).toString("hex");
+      const token = jwt.sign(
+        { id: user._id }, // payload
+        process.env.JWT_SECRET, // secret
+        { expiresIn: "1h" } // optional expiration
+      );
       user.token = token;
       await user.save();
       return res.status(httpStatus.OK).json({ token });
@@ -41,7 +47,7 @@ class userController {
     }
   });
 
-  register = wrapAsync(async (req, res) => {
+  register = wrapAsync(async (req, res, next) => {
     const { name, username, identifier, password } = req.body;
 
     if (!name || !username || !identifier || !password) {

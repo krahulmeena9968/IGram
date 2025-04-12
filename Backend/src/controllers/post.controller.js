@@ -3,8 +3,10 @@ import wrapAsync from "../utils/wrapAsync.utils.js";
 import httpStatus from "http-status";
 
 class crudOperation {
-  postData = wrapAsync(async (req, res) => {
+  postData = wrapAsync(async (req, res, next) => {
     const { content, media, hashtags, createdAt, isEdited } = req.body;
+    const userId = req.user._id;
+    const postByUser = req.user;
 
     if (!content && (!media || media.length == 0)) {
       return res
@@ -22,14 +24,21 @@ class crudOperation {
       hashtags,
       createdAt,
       isEdited,
+      createdBy: postByUser,
     });
     await newPost.save();
+
+    //Populate the post
+    const populatePost = await Post.findById(newPost._id).populate(
+      "createdBy",
+      "name username, identifier"
+    );
     res
       .status(httpStatus.CREATED)
-      .json({ message: "New post successfully created!" });
+      .json({ message: "New post successfully created!", populatePost });
   });
 
-  editPost = wrapAsync(async (req, res) => {
+  editPost = wrapAsync(async (req, res, next) => {
     const { id } = req.params;
     const editedPost = await Post.findByIdAndUpdate(id, { ...req.body });
     if (!editedPost) {
@@ -41,7 +50,7 @@ class crudOperation {
     res.status(httpStatus.OK).json({ message: "Post edited successfully!" });
   });
 
-  deletePost = wrapAsync(async (req, res) => {
+  deletePost = wrapAsync(async (req, res, next) => {
     const { id } = req.params;
     const deletedPost = await Post.findByIdAndDelete(id);
     if (!deletedPost) {
@@ -61,8 +70,10 @@ class crudOperation {
   //   res.status(httpStatus.OK).json(yourPost);
   // });
 
-  allPost = wrapAsync(async (req, res) => {
-    const allYourPost = await Post.find();
+  allPost = wrapAsync(async (req, res, next) => {
+    const allYourPost = await Post.find()
+      .populate("createdBy", "name username identifier")
+      .sort({ createdAt: -1 });
     if (!allYourPost) {
       res
         .status(httpStatus.NOT_FOUND)

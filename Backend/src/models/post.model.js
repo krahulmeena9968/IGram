@@ -23,6 +23,11 @@ const postSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User", // refers to user collections
+    required: true,
+  },
 });
 
 const Post = mongoose.model("Post", postSchema);

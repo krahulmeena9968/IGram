@@ -2,14 +2,22 @@ import express from "express";
 const router = express.Router();
 import crudOperation from "../controllers/post.controller.js";
 const crudOperationInstance = new crudOperation();
+import userMiddleware from "../middlewares/user.middlewares.js";
+const userMiddlewareInstance = new userMiddleware();
 
-router.post("/post", (req, res) => crudOperationInstance.postData(req, res));
-router.get("/post/all", (req, res) => crudOperationInstance.allPost(req, res));
-router.put("/post/:id/edit", (req, res) =>
-  crudOperationInstance.editPost(req, res)
+router.post(
+  "/post",
+  userMiddlewareInstance.authMiddleware,
+  crudOperationInstance.postData
 );
-router.delete("/post/:id", (req, res) =>
-  crudOperationInstance.deletePost(req, res)
+router.get("/post/all", (req, res, next) =>
+  crudOperationInstance.allPost(req, res, next)
+);
+router.put("/post/:id/edit", (req, res, next) =>
+  crudOperationInstance.editPost(req, res, next)
+);
+router.delete("/post/:id", (req, res, next) =>
+  crudOperationInstance.deletePost(req, res, next)
 );
 
 export default router;
