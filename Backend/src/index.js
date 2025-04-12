@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
-import mongoose from "mongoose";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
@@ -11,6 +10,8 @@ import passport from "passport";
 import session from "express-session";
 
 import "./config/google.passport.js";
+
+import { Database } from "./config/db.config.js";
 
 const app = express();
 const server = createServer(app);
@@ -30,6 +31,7 @@ app.use(
   })
 );
 
+// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -42,15 +44,11 @@ const uri = process.env.MONGO_URL;
 app.use("/", googleRoute);
 app.use("/api/v1/users", userRoute);
 
-mongoose
-  .connect(uri)
-  .then(() => {
-    console.log("MongoDB is connected successfully!");
-  })
-  .catch((err) => {
-    console.error("MongoDB connection error", err);
-  });
+// Connecting with database and creating object
+const db = new Database(uri);
+db.connect();
 
+// Connecting with server
 server.listen(PORT, () => {
   console.log(`Server is running on port PORT ${PORT}`);
 });
