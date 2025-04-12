@@ -2,9 +2,10 @@ import { User } from "../models/user.models.js";
 import httpStatus from "http-status";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import wrapAsync from "../utils/wrapAsync.utils.js";
 
 class userController {
-  async login(req, res) {
+  login = wrapAsync(async (req, res) => {
     let { identifier, password, username } = req.body;
 
     if (!identifier) {
@@ -38,9 +39,9 @@ class userController {
         .status(httpStatus.UNAUTHORIZED)
         .json({ message: "User doesn't exists" });
     }
-  }
+  });
 
-  async register(req, res) {
+  register = wrapAsync(async (req, res) => {
     const { name, username, identifier, password } = req.body;
 
     if (!name || !username || !identifier || !password) {
@@ -74,6 +75,6 @@ class userController {
     } catch (error) {
       return res.status(500).json({ message: `Something went wrong ${error}` });
     }
-  }
+  });
 }
 export default userController;

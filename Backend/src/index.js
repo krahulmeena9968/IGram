@@ -6,6 +6,7 @@ import { Server } from "socket.io";
 import cors from "cors";
 import userRoute from "./routes/user.routes.js";
 import googleRoute from "./routes/google.routes.js";
+import postRoutes from "./routes/post.routes.js";
 import passport from "passport";
 import session from "express-session";
 
@@ -43,6 +44,7 @@ const uri = process.env.MONGO_URL;
 // login and signup
 app.use("/", googleRoute);
 app.use("/api/v1/users", userRoute);
+app.use("/have", postRoutes);
 
 // Connecting with database and creating object
 const db = new Database(uri);
