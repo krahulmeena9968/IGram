@@ -1,5 +1,5 @@
-import Review from "../models/reviews.model";
-import wrapAsync from "../utils/wrapAsync.utils";
+import Review from "../models/reviews.model.js";
+import wrapAsync from "../utils/wrapAsync.utils.js";
 import httpStatus from "http-status";
 
 class reviewsPost {
