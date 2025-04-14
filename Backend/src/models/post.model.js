@@ -23,8 +23,15 @@ const postSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  reviews: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Review",
+      required: true,
+    },
+  ],
   createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "User", // refers to user collections
     required: true,
   },

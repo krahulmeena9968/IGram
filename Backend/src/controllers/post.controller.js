@@ -73,6 +73,10 @@ class crudOperation {
   allPost = wrapAsync(async (req, res, next) => {
     const allYourPost = await Post.find()
       .populate("createdBy", "name username identifier")
+      .populate({
+        path: "reviews",
+        populate: { path: "likeBy", select: "name, username, identifier" },
+      })
       .sort({ createdAt: -1 });
     if (!allYourPost) {
       res
